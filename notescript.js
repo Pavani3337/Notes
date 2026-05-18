@@ -14,11 +14,11 @@ function saveNotes() {
 function displayNotes(filteredNotes = notes) {
 
     const notesContainer =
-        document.getElementById("notesContainer");
+    document.getElementById("notesContainer");
 
     notesContainer.innerHTML = "";
 
-    filteredNotes.forEach((note, index) => {
+    filteredNotes.forEach((note) => {
 
         notesContainer.innerHTML += `
 
@@ -28,16 +28,24 @@ function displayNotes(filteredNotes = notes) {
 
             <p>${note.text}</p>
 
+            <small>
+                ${note.date}
+            </small>
+
             <div class="note-buttons">
 
                 <button class="edit-btn"
-                        onclick="editNote(${index})">
+                        onclick="editNote(${note.id})">
+
                     Edit
+
                 </button>
 
                 <button class="delete-btn"
-                        onclick="deleteNote(${index})">
+                        onclick="deleteNote(${note.id})">
+
                     Delete
+
                 </button>
 
             </div>
@@ -53,10 +61,12 @@ function displayNotes(filteredNotes = notes) {
 function addNote() {
 
     const title =
-        document.getElementById("noteTitle").value;
+    document.getElementById("noteTitle")
+    .value.trim();
 
     const text =
-        document.getElementById("noteText").value;
+    document.getElementById("noteText")
+    .value.trim();
 
     if (title === "" || text === "") {
 
@@ -66,69 +76,92 @@ function addNote() {
 
     }
 
-    notes.push({
+    const note = {
+
+        id: Date.now(),
 
         title: title,
-        text: text
 
-    });
+        text: text,
 
-    saveNotes();
+        date:
+        new Date()
+        .toLocaleString()
 
-    displayNotes();
+    };
 
-    document.getElementById("noteTitle").value = "";
-
-    document.getElementById("noteText").value = "";
-
-}
-
-function deleteNote(index) {
-
-    notes.splice(index, 1);
+    notes.unshift(note);
 
     saveNotes();
 
     displayNotes();
 
+    clearInputs();
+
 }
 
-function editNote(index) {
+function deleteNote(id) {
 
-    document.getElementById("noteTitle").value =
-        notes[index].title;
+    notes = notes.filter(note =>
+        note.id !== id
+    );
 
-    document.getElementById("noteText").value =
-        notes[index].text;
+    saveNotes();
 
-    deleteNote(index);
+    displayNotes();
+
+}
+
+function editNote(id) {
+
+    const note =
+    notes.find(note =>
+        note.id === id
+    );
+
+    document.getElementById("noteTitle")
+    .value = note.title;
+
+    document.getElementById("noteText")
+    .value = note.text;
+
+    deleteNote(id);
 
 }
 
 function searchNotes() {
 
     const searchValue =
-        document.getElementById("searchInput")
-        .value
-        .toLowerCase();
+    document.getElementById("searchInput")
+    .value
+    .toLowerCase();
 
-    const filteredNotes = notes.filter((note) => {
+    const filteredNotes =
+    notes.filter(note =>
 
-        return (
+        note.title
+        .toLowerCase()
+        .includes(searchValue)
 
-            note.title.toLowerCase()
-            .includes(searchValue)
+        ||
 
-            ||
+        note.text
+        .toLowerCase()
+        .includes(searchValue)
 
-            note.text.toLowerCase()
-            .includes(searchValue)
-
-        );
-
-    });
+    );
 
     displayNotes(filteredNotes);
+
+}
+
+function clearInputs() {
+
+    document.getElementById("noteTitle")
+    .value = "";
+
+    document.getElementById("noteText")
+    .value = "";
 
 }
 
